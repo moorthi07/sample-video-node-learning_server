@@ -31,17 +31,17 @@ obtain at the [Vonage Dashboard](https://dashboard.nexmo.com).
 
       ```
         # enter your Vonage Application ID after the '=' sign below
-        VONAGE_APP_ID=your_api_key
+        API_APPLICATION_ID=your_api_key
         
         # enter your Vonage Private Key as a string or path to the file after the '=' sign below
-        VONAGE_PRIVATE_KEY=your_private_key
+        PRIVATE_KEY=your_private_key
         
         # OR enter your Vonage Private Key as a base64-encoded value ( Linux: cat private.key | base64 -w 0 Mac: cat private.key | base64 -b 0 ) after the '=' sign below
-        VONAGE_PRIVATE_KEY64=your_private_key64
+        PRIVATE_KEY64=your_private_key64
       ```
     
   4. Run `npm start` to start the app.
-  5. Visit the URL <http://localhost:8080/session> in your browser. You should see a JSON response containing the Vonage Application ID, session Id, and token.
+  5. Visit the URL <http://localhost:3000/session> in your browser. You should see a JSON response containing the Vonage Application ID, session Id, and token.
 
 ## Exploring the code 
 
