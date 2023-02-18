@@ -9,7 +9,7 @@ let privateKey;
 if (process.env.PRIVATE_KEY) {
   privateKey = process.env.PRIVATE_KEY
 } else if (process.env.PRIVATE_KEY64){
-  privateKey = Buffer.from(process.env.VONAGE_PRIVATE_KEY64, 'base64');
+  privateKey = Buffer.from(process.env.PRIVATE_KEY64, 'base64');
 }
 
 if (!appId || !privateKey) {
