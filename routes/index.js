@@ -3,13 +3,13 @@ const router = express.Router();
 const path = require('path');
 const _ = require('lodash');
 
-const appId = process.env.VONAGE_APP_ID;
+const appId = process.env.API_APPLICATION_ID;
 let privateKey;
 
-if (process.env.VONAGE_PRIVATE_KEY) {
-  privateKey = process.env.VONAGE_PRIVATE_KEY
-} else if (process.env.VONAGE_PRIVATE_KEY64){
-  privateKey = Buffer.from(process.env.VONAGE_PRIVATE_KEY64, 'base64');
+if (process.env.PRIVATE_KEY) {
+  privateKey = process.env.PRIVATE_KEY
+} else if (process.env.PRIVATE_KEY64){
+  privateKey = Buffer.from(process.env.PRIVATE_KEY64, 'base64');
 }
 
 if (!appId || !privateKey) {
@@ -23,11 +23,15 @@ if (!appId || !privateKey) {
   process.exit();
 }
 
-const Vonage = require('@vonage/server-sdk');
-const vonage = new Vonage({
+const { Vonage } = require('@vonage/server-sdk');
+const { Video } = require('@vonage/video')
+const vonageCredentials = {
   applicationId: appId,
   privateKey: privateKey
-});
+};
+const vonage = new Vonage(vonageCredentials);
+const video = new Video(vonageCredentials)
+vonage.video = video
 
 // IMPORTANT: roomToSessionIdDictionary is a variable that associates room names with unique
 // session IDs. However, since this is stored in memory, restarting your server will
