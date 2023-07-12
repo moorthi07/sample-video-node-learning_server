@@ -42,7 +42,7 @@ obtain at the [Vonage Dashboard](https://dashboard.nexmo.com).
 
       ```
         # enter your Vonage Application ID after the '=' sign below
-        API_APPLICATION_ID=your_api_key
+        API_APPLICATION_ID=your_application_id
         
         # enter your Vonage Private Key as a string or path to the file after the '=' sign below
         PRIVATE_KEY=your_private_key
