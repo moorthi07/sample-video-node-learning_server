@@ -429,6 +429,8 @@ router.all('/admin/clear-conversations', async function (req, res) {
       console.error(error);
       res.send(error)
     });
+});
+
 router.get('/_/health', async function (req, res) {
   res.status(200).send({status: 'OK'});
 })
