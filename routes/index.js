@@ -39,15 +39,109 @@ vonage.video = video
 // application you should consider a more persistent storage
 
 let roomToSessionIdDictionary = {};
+let broadcastsToSessionIdDictionary = {};
 
 // returns the room name, given a session ID that was associated with it
 function findRoomFromSessionId(sessionId) {
   return _.findKey(roomToSessionIdDictionary, function (value) { return value === sessionId; });
 }
 
+// Creates a session with various roles and properties
+async function createSession(roomName, sessionProperties = {}, role = 'moderator') {
+  let sessionId;
+  let token;
+  console.log(`Creating ${role} creds for ${roomName}`);
+
+  if (roomToSessionIdDictionary[roomName]) {
+    sessionId = roomToSessionIdDictionary[roomName];
+    token = vonage.video.generateClientToken(sessionId, { role })
+    res.setHeader('Content-Type', 'application/json');
+    res.send({
+      applicationId: appId,
+      sessionId: sessionId,
+      token: token
+    });
+  } else {
+    try {
+      const session = await vonage.video.createSession(sessionProperties);
+
+      // now that the room name has a session associated wit it, store it in memory
+      // IMPORTANT: Because this is stored in memory, restarting your server will reset these values
+      // if you want to store a room-to-session association in your production application
+      // you should use a more persistent storage for them
+      roomToSessionIdDictionary[roomName] = session.sessionId;
+
+      // generate token
+      token = vonage.video.generateClientToken(session.sessionId, { role });
+      res.setHeader('Content-Type', 'application/json');
+      res.send({
+        applicationId: appId,
+        sessionId: session.sessionId,
+        token: token
+      });
+    } catch(error) {
+      console.error("Error creating session: ", error);
+      res.status(500).send({ error: 'createSession error:' + error });
+    }
+  }
+}
+
 router.get('/', function (req, res) {
   res.render('index', { title: 'Learning-Vonage-Node' });
 });
+
+router.get('/broadcast/:name/host', async function (req, res) {
+  const broadcastName = req.params.name + '-broadcast';
+  await createSession(broadcastName, { initialLayoutClassList: ['full', 'focus'] }, 'moderator');
+});
+
+router.get('/broadcast/:name/viewer', async function (req, res) {
+  const broadcastName = req.params.name + '-broadcast';
+  await createSession(broadcastName, { initialLayoutClassList: ['full', 'focus'] }, 'subscriber');
+});
+
+router.get('/broadcast/:name/guest', async function (req, res) {
+  const broadcastName = req.params.name + '-broadcast';
+  await createSession(broadcastName, { initialLayoutClassList: ['full', 'focus'] }, 'subscriber');
+});
+
+router.post('/broadcast/:room/start', async (req, res) => {
+  const { rtmp, lowLatency, fhd, dvr, sessionId, streamMode } = req.body;
+
+  // Kill any existing broadcasts we have, to be safe
+  vonage.video.searchBroadcasts({sessionId})
+    .then(list => {
+      list.items.map(async (broadcast) => {
+        vonage.video.stopBroadcast(broadcast.id)
+      })
+    })
+
+  vonage.video.startBroadcast(sessionId, {rtmp, lowLatency, fhd, dvr, streamMode})
+    .then(data => {
+      broadcastsToSessionIdDictionary[sessionId] = data;
+      res.send(data)
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send(error)
+    })
+})
+
+router.post('/broadcast/:room/stop', async (req, res) => {
+  const { sessionId } = req.body
+  if (broadcastsToSessionIdDictionary[sessionId]) {
+    vonage.video.stopBroadcast(broadcastsToSessionIdDictionary[sessionId].id)
+      .then(data => {
+        delete broadcastsToSessionIdDictionary[sessionId]
+        res.send(data)
+      })
+      .catch(err => {
+        console.error(err)
+        res.status(500).send(err)
+      })
+  }
+  
+})
 
 /**
  * GET /session redirects to /room/session
@@ -61,47 +155,7 @@ router.get('/session', function (req, res) {
  */
 router.get('/room/:name', async function (req, res) {
   const roomName = req.params.name;
-  let sessionId;
-  let token;
-  console.log('attempting to create a session associated with the room: ' + roomName);
-
-  // if the room name is associated with a session ID, fetch that
-  if (roomToSessionIdDictionary[roomName]) {
-    sessionId = roomToSessionIdDictionary[roomName];
-
-    // generate token
-    token = vonage.video.generateClientToken(sessionId);
-    res.setHeader('Content-Type', 'application/json');
-    res.send({
-      applicationId: appId,
-      sessionId: sessionId,
-      token: token
-    });
-  }
-  // if this is the first time the room is being accessed, create a new session ID
-  else {
-    try {
-      const session = await vonage.video.createSession({ mediaMode:"routed" });
-
-      // now that the room name has a session associated wit it, store it in memory
-      // IMPORTANT: Because this is stored in memory, restarting your server will reset these values
-      // if you want to store a room-to-session association in your production application
-      // you should use a more persistent storage for them
-      roomToSessionIdDictionary[roomName] = session.sessionId;
-
-      // generate token
-      token = vonage.video.generateClientToken(session.sessionId);
-      res.setHeader('Content-Type', 'application/json');
-      res.send({
-        applicationId: appId,
-        sessionId: session.sessionId,
-        token: token
-      });
-    } catch(error) {
-      console.error("Error creating session: ", error);
-      res.status(500).send({ error: 'createSession error:' + error });
-    }
-  }
+  await createSession(roomName, { mediaMode:"routed" }, 'moderator');
 });
 
 /**
