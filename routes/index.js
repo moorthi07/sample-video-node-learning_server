@@ -47,7 +47,7 @@ function findRoomFromSessionId(sessionId) {
 }
 
 // Creates a session with various roles and properties
-async function createSession(roomName, sessionProperties = {}, role = 'moderator') {
+async function createSession(response, roomName, sessionProperties = {}, role = 'moderator') {
   let sessionId;
   let token;
   console.log(`Creating ${role} creds for ${roomName}`);
@@ -55,8 +55,8 @@ async function createSession(roomName, sessionProperties = {}, role = 'moderator
   if (roomToSessionIdDictionary[roomName]) {
     sessionId = roomToSessionIdDictionary[roomName];
     token = vonage.video.generateClientToken(sessionId, { role })
-    res.setHeader('Content-Type', 'application/json');
-    res.send({
+    response.setHeader('Content-Type', 'application/json');
+    response.send({
       applicationId: appId,
       sessionId: sessionId,
       token: token
@@ -73,15 +73,15 @@ async function createSession(roomName, sessionProperties = {}, role = 'moderator
 
       // generate token
       token = vonage.video.generateClientToken(session.sessionId, { role });
-      res.setHeader('Content-Type', 'application/json');
-      res.send({
+      response.setHeader('Content-Type', 'application/json');
+      response.send({
         applicationId: appId,
         sessionId: session.sessionId,
         token: token
       });
     } catch(error) {
       console.error("Error creating session: ", error);
-      res.status(500).send({ error: 'createSession error:' + error });
+      response.status(500).send({ error: 'createSession error:' + error });
     }
   }
 }
@@ -92,17 +92,17 @@ router.get('/', function (req, res) {
 
 router.get('/broadcast/:name/host', async function (req, res) {
   const broadcastName = req.params.name + '-broadcast';
-  await createSession(broadcastName, { initialLayoutClassList: ['full', 'focus'] }, 'moderator');
+  await createSession(res, broadcastName, { initialLayoutClassList: ['full', 'focus'] }, 'moderator');
 });
 
 router.get('/broadcast/:name/viewer', async function (req, res) {
   const broadcastName = req.params.name + '-broadcast';
-  await createSession(broadcastName, { initialLayoutClassList: ['full', 'focus'] }, 'subscriber');
+  await createSession(res, broadcastName, { initialLayoutClassList: ['full', 'focus'] }, 'subscriber');
 });
 
 router.get('/broadcast/:name/guest', async function (req, res) {
   const broadcastName = req.params.name + '-broadcast';
-  await createSession(broadcastName, { initialLayoutClassList: ['full', 'focus'] }, 'subscriber');
+  await createSession(res, broadcastName, { initialLayoutClassList: ['full', 'focus'] }, 'subscriber');
 });
 
 router.post('/broadcast/:room/start', async (req, res) => {
@@ -155,7 +155,7 @@ router.get('/session', function (req, res) {
  */
 router.get('/room/:name', async function (req, res) {
   const roomName = req.params.name;
-  await createSession(roomName, { mediaMode:"routed" }, 'moderator');
+  await createSession(res, roomName, { mediaMode:"routed" }, 'moderator');
 });
 
 /**
