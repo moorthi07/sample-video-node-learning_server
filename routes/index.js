@@ -107,7 +107,6 @@ router.get('/broadcast/:name/guest', async function (req, res) {
 
 router.post('/broadcast/:room/start', async (req, res) => {
   const { rtmp, lowLatency, fhd, dvr, sessionId, streamMode } = req.body;
-
   // Kill any existing broadcasts we have, to be safe
   vonage.video.searchBroadcasts({sessionId})
     .then(list => {
@@ -116,7 +115,7 @@ router.post('/broadcast/:room/start', async (req, res) => {
       })
     })
 
-  vonage.video.startBroadcast(sessionId, {rtmp, lowLatency, fhd, dvr, streamMode})
+  vonage.video.startBroadcast(sessionId, {outputs: {rtmp, hls: {lowLatency, dvr}}, streamMode})
     .then(data => {
       broadcastsToSessionIdDictionary[sessionId] = data;
       res.send(data)
@@ -140,7 +139,20 @@ router.post('/broadcast/:room/stop', async (req, res) => {
         res.status(500).send(err)
       })
   }
-  
+})
+
+router.post('/broadcast/:room/status', async (req, res) => {
+  const { sessionId } = req.body
+  if (broadcastsToSessionIdDictionary[sessionId]) {
+    vonage.video.getBroadcast(broadcastsToSessionIdDictionary[sessionId].id)
+      .then(data => {
+        res.send(data)
+      })
+      .catch(err => {
+        console.error(err)
+        res.status(500).send(err)
+      })
+  }
 })
 
 /**
