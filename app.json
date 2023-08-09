@@ -13,15 +13,23 @@
   "repository": "https://github.com/Vonage-Community/sample-video-node-learning_server",
   "env": {
     "VONAGE_APP_ID": {
-      "description": "Vonage Application Id: Login to the Vonage Dashboard (https://dashboard.nexmo.com/applications) to get this value",
+      "description": "Vonage Application Id: Login to the Vonage Dashboard (https://dashboard.nexmo.com/applications) to get this value.",
       "required": true
     },
-    "VONAGE_PRIVATE_KEY": {
-      "description": "Vonage Private Key as a string or the path to the file: Login to the Vonage Dashboard (https://dashboard.nexmo.com/applications) to get this value",
+    "VONAGE_PRIVATE_KEY64": {
+      "description": "Your Vonage Private Key as a base64-encoded value ( Linux: cat private.key | base64 -w 0 \n Mac: cat private.key | base64 -b 0 ): Login to the Vonage Dashboard (https://dashboard.nexmo.com/applications) to get this value",
+      "required": true
+    },
+    "API_KEY": {
+      "description": "Your Vonage API Key. Required to use SIP Connectivity.",
       "required": false
     },
-    "VONAGE_PRIVATE_KEY64": {
-      "description": "OR Vonage Private Key as a base64-encoded value ( Linux: cat private.key | base64 -w 0 Mac: cat private.key | base64 -b 0 ): Login to the Vonage Dashboard (https://dashboard.nexmo.com/applications) to get this value",
+    "API_SECRET": {
+      "description": "Your Vonage API Secret. Required to use SIP Connectivity.",
+      "required": false
+    },
+    "CONFERENCE_NUMBER": {
+      "description": "The phone number linked to your Vonage Application. Required for SIP Connectivity.",
       "required": false
     }
   }
