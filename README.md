@@ -21,7 +21,7 @@ obtain at the [Vonage Dashboard](https://dashboard.nexmo.com).
 
 [Railway](https://railway.app/) is a deployment platform where you can provision infrastructure, develop with that infrastructure locally, and then deploy to the cloud.
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/cpL1gD?referralCode=jvcjIS)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/GHmSB0)
 
 Railway will prompt you to add your Vonage Application ID and Vonage Private Key, which you can
 obtain at the [Vonage Dashboard](https://dashboard.nexmo.com).
