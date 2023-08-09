@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const _ = require('lodash');
+const { uniqueNamesGenerator, adjectives, colors, animals } = require('unique-names-generator');
+const { Connect, Conversation, NCCOBuilder, Talk } = require('@vonage/voice')
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const { tokenGenerate } = require('@vonage/jwt')
 
 const appId = process.env.API_APPLICATION_ID;
 let privateKey;
@@ -30,8 +34,7 @@ const vonageCredentials = {
   privateKey: privateKey
 };
 const vonage = new Vonage(vonageCredentials);
-const video = new Video(vonageCredentials)
-vonage.video = video
+vonage.video = new Video(vonageCredentials);
 
 // IMPORTANT: roomToSessionIdDictionary is a variable that associates room names with unique
 // session IDs. However, since this is stored in memory, restarting your server will
@@ -40,10 +43,29 @@ vonage.video = video
 
 let roomToSessionIdDictionary = {};
 let broadcastsToSessionIdDictionary = {};
+let sipConversationToSessionIdDictionary = {};
 
 // returns the room name, given a session ID that was associated with it
 function findRoomFromSessionId(sessionId) {
   return _.findKey(roomToSessionIdDictionary, function (value) { return value === sessionId; });
+}
+
+function findSessionIdForRoom(roomName) {
+  return roomToSessionIdDictionary[roomName] ? roomToSessionIdDictionary[roomName] : null;
+}
+
+function findConversationFromSessionId(sessionId) {
+  return sipConversationToSessionIdDictionary[sessionId];
+}
+
+function generatePin() {
+  return Math.floor(Math.random() * 9000) + 1000;
+};
+
+function generateConversationName() {
+  return uniqueNamesGenerator({
+    dictionaries: [adjectives, colors, animals]
+  });
 }
 
 // Creates a session with various roles and properties
@@ -267,5 +289,146 @@ router.get('/archive', async function (req, res) {
     res.status(500).send({ error: 'listArchives error:' + error });
   }
 });
+
+router.get("/sip/:room", async function (req, res) {
+  const sessionId = findSessionIdForRoom(req.params.room);
+  if (sessionId) {
+    const conversation = findConversationFromSessionId(sessionId);
+    if (conversation) {
+      res.send(conversation);
+      return;
+    } else {
+      sipConversationToSessionIdDictionary[sessionId] = {
+        pin: generatePin(),
+        conversationName: generateConversationName(),
+        sessionId,
+        conferenceNumber: process.env.CONFERENCE_NUMBER
+      }
+
+      res.send(sipConversationToSessionIdDictionary[sessionId]);
+    }
+  } else {
+    res.status(404).send({
+      title: "Unknown room",
+      details: "The room you requested does not exist, therefore we have no SIP information"
+    });
+  }
+});
+
+router.post("/sip/:room/dial", async function (req, res) {
+  const { msisdn } = req.body;
+  const sessionId = findSessionIdForRoom(req.params.room);
+  const conversation = findConversationFromSessionId(sessionId);
+  const token = vonage.video.generateClientToken(sessionId, {
+    data: JSON.stringify({
+      sip: true,
+      role: 'client',
+      name: conversation.conversationName,
+    })
+  })
+
+  const options = {
+    token, 
+    sip: {
+      auth: {
+        username: process.env.API_KEY,
+        password: process.env.API_SECRET,
+      },
+      uri: `sip:${process.env.CONFERENCE_NUMBER}@sip.nexmo.com;transport=tls`,
+      secure: false,
+    }
+  }
+
+  if (msisdn) {
+    options.sip.headers = {
+      "X-learningserver-msisdn": msisdn
+    }
+  }
+
+  await vonage.video.intiateSIPCall(sessionId, options)
+    .then(data => {
+      // Update the conversation with connection data
+      conversation.connectionId = data.connectionId;
+      conversation.streamId = data.streamId;
+      sipConversationToSessionIdDictionary[sessionId] = conversation;
+
+      res.send(data)
+    })
+});
+
+router.post("/sip/:room/hangup", async function (req, res) {
+  // Get the session ID
+  // Look up the connection from calls ID
+  const sessionId = findSessionIdForRoom(req.params.room)
+  const conversation = findConversationFromSessionId(sessionId);
+  await vonage.video.disconnectClient(sessionId, conversation.connectionId)
+    .then(data => 
+      res.send(data)
+    )
+    .catch(error => res.status(500).send(error));
+});
+
+router.get('/sip/vapi/answer', async function (req, res) {
+  const ncco = new NCCOBuilder();
+  const conversation = findConversationFromSessionId(findSessionIdForRoom('session'));
+
+  // If the call is not from the SIP connector, then announce we are connecting
+  // to the conference call
+  if (!req.query['SipHeader_X-OpenTok-SessionId']) {
+    ncco.addAction(new Talk('Please wait while we connect you'));
+  }
+
+  // Call an individual user
+  if (req.query['SipHeader_X-learningserver-msisdn']) {
+    ncco.addAction(new Connect({type: 'phone', number: req.query['SipHeader_X-learningserver-msisdn']}, process.env.CONFERENCE_NUMBER));
+  } else {
+    ncco.addAction(new Conversation(conversation.conversationName, null, true, true, false, null, null, false));
+  }
+
+  res.send(ncco.build());
+});
+
+// This must be all because VAPI sometimes sends events as POST no matter what
+// your event URL config is set to. This is a known bug.
+router.all('/sip/vapi/events', async function (req, res) {
+  if (req.query.status === "completed") {
+    const conversation = findConversationFromSessionId(findSessionIdForRoom('session'));
+    await vonage.video.disconnectClient(findSessionIdForRoom('session'), conversation.connectionId)
+      .then(data => res.send(data))
+      .catch(error => res.status(500).send(error));
+  } else {
+    res.send();
+  }
+})
+
+router.all('/admin/clear-conversations', async function (req, res) {
+  const token = tokenGenerate(appId, privateKey);
+  await fetch('https://api.nexmo.com/v0.3/conversations', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(res => res.json())
+    .then(async (data) => {
+      for (i in data._embedded.conversations) {
+        const convo = data._embedded.conversations[i];
+        await fetch(convo._links.self.href, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+          .catch(error => console.error(error));
+      }
+      res.send({status: true, message: 'Cleared all conversations'});
+    })
+    .catch(error => {
+      console.error(error);
+      res.send(error)
+    });
+})
 
 module.exports = router;
