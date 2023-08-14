@@ -22,7 +22,9 @@
     "node-fetch": "^3.3.2",
     "pug": "^3.0.2",
     "serve-favicon": "~2.5.0",
-    "uglify-js": "^3.13.4",
     "unique-names-generator": "^4.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
   }
 }
