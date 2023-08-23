@@ -331,8 +331,8 @@ router.post("/sip/:room/dial", async function (req, res) {
     token, 
     sip: {
       auth: {
-        username: process.env.API_KEY,
-        password: process.env.API_SECRET,
+        username: process.env.VCR_API_ACCOUNT_ID,
+        password: process.env.VCR_API_ACCOUNT_SECRET,
       },
       uri: `sip:${process.env.CONFERENCE_NUMBER}@sip.nexmo.com;transport=tls`,
       secure: false,

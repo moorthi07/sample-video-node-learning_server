@@ -1,18 +1,6 @@
 {
     "data": [
         {
-            "type": "TEXT",
-            "title": "Vonage API Key",
-            "description": "Your Vonage API Key. This is needed to enable SIP Functionality",
-            "name": "API_KEY"
-        },
-        {
-            "type": "SECRET",
-            "title": "Vonage API Secret",
-            "description": "Your Vonage API Secret. This is needed to enable SIP Functionality",
-            "name": "API_SECRET"
-        },
-        {
             "type": "PHONE_NUMBER",
             "title": "SIP Conference Number",
             "description": "A Vonage Number that will be used for SIP connectivity",

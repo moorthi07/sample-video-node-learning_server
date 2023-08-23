@@ -43,3 +43,6 @@ jspm_packages
 .DS_Store
 
 neru.yml
+vcr.yml
+vcr-build/
+release/
