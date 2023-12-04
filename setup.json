@@ -13,9 +13,10 @@
             "name": "API_SECRET"
         },
         {
-            "type": "CONFERENCE_NUMBER",
+            "type": "PHONE_NUMBER",
             "title": "SIP Conference Number",
-            "description": "A Vonage Number that will be used for SIP connectivity"
+            "description": "A Vonage Number that will be used for SIP connectivity",
+            "name": "CONFERENCE_NUMBER"
         }
     ]
 }
