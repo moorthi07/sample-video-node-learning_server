@@ -6,25 +6,13 @@ This simple server app shows you how to use [Vonage Video Node Server SDK](https
 
 ## Quick deploy
 
-### Heroku
+### Vonage Code Hub
 
-Heroku is a PaaS (Platform as a Service) that can be used to deploy simple and small applications for free. To easily deploy this repository to Heroku, sign up for a Heroku account and click this button:
+While this code can be run locally or on your own server, this code is also available as a project on the [Vonage Code Hub](https://developer.vonage.com/en/cloud-runtime/1dc909c1-e04c-4cab-92d8-8866fa97a953_vonage-video-learning-server-node-js). From there you can deploy directly to your Vonage account with almost all of the settings pre-configured for you, including a publically accessible web address you can use with front-end projects.
 
-<a href="https://heroku.com/deploy?template=https://github.com/Vonage-Community/sample-video-node-learning_server/" target="_blank">
-<img src="https://www.herokucdn.com/deploy/button.png" alt="Deploy">
-</a>
+You can either deploy the code as-is by clicking on "Deploy Code", or if you would like to make edits to the source code you can click "Get Code" to be dropped into an editor. You can then customize the sample application and deploy to Code Hub.
 
-Heroku will prompt you to add your Vonage Application ID and Vonage Private Key, which you can
-obtain at the [Vonage Dashboard](https://dashboard.nexmo.com).
-
-### Railway
-
-[Railway](https://railway.app/) is a deployment platform where you can provision infrastructure, develop with that infrastructure locally, and then deploy to the cloud.
-
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/GHmSB0)
-
-Railway will prompt you to add your Vonage Application ID and Vonage Private Key, which you can
-obtain at the [Vonage Dashboard](https://dashboard.nexmo.com).
+For more information about Code Hub, see the [developer documentation](https://developer.vonage.com/en/vcr/overview).
 
 ## Requirements
 
@@ -49,6 +37,15 @@ obtain at the [Vonage Dashboard](https://dashboard.nexmo.com).
         
         # OR enter your Vonage Private Key as a base64-encoded value ( Linux: cat private.key | base64 -w 0 Mac: cat private.key | base64 -b 0 ) after the '=' sign below
         PRIVATE_KEY64=your_private_key64
+
+        # If using the SIP integration, enter in your Vonage API Key
+        VCR_API_ACCOUNT_ID=your_vonage_account_key
+
+        # If using the SIP integration, enter in your Vonage API Secret
+        VCR_API_ACCOUNT_SECRET=your_vonage_account_secret
+
+        # If using the SIP integration, enter a phone number linked to the Application ID above
+        CONFERENCE_NUMBER=number_linked_to_API_APPLICATION_ID
       ```
     
   4. Run `npm start` to start the app.

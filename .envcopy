@@ -8,10 +8,10 @@ PRIVATE_KEY=your_private_key
 PRIVATE_KEY64=your_private_key64
 
 # If using the SIP integration, enter in your Vonage API Key
-API_KEY=
+VCR_API_ACCOUNT_ID=
 
 # If using the SIP integration, enter in your Vonage API Secret
-API_SECRET=
+VCR_API_ACCOUNT_SECRET=
 
 # If using the SIP integration, enter a phone number linked to the Application ID above
 CONFERENCE_NUMBER=
