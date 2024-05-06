@@ -189,7 +189,8 @@ router.get('/session', function (req, res) {
  */
 router.get('/room/:name', async function (req, res) {
   const roomName = req.params.name;
-  await createSession(res, roomName, { mediaMode:"routed" }, 'moderator');
+  const e2ee = req.params.e2ee || false
+  await createSession(res, roomName, { mediaMode:"routed", e2ee }, 'moderator');
 });
 
 /**
