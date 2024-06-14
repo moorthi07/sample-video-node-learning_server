@@ -12,7 +12,7 @@ This simple server app shows you how to use [Vonage Video Node Server SDK](https
 
 While this code can be run locally or on your own server, this code is also available as a project on Vonage's [Code Hub](https://developer.vonage.com/en/cloud-runtime/1dc909c1-e04c-4cab-92d8-8866fa97a953_vonage-video-learning-server-node-js). From there you can deploy directly to your Vonage account with almost all of the settings pre-configured for you, including a publically accessible web address you can use with front-end projects.
 
-You can either deploy the code as-is by clicking on "Deploy Code", or if you would like to make edits to the source code you can click "Get Code" to be dropped into an editor. You can then customize the sample application and deploy to Code Hub.
+You can either deploy the code as-is by clicking on "Deploy Code", or if you would like to make edits to the source code you can click "Get Code" to be dropped into an editor. You can then customize the sample application and deploy to Vonage Cloud Runtime.
 
 If you choose "Get Code" once the workspace opens you can start debugging the project by running this command in the "Terminal":
 
@@ -26,13 +26,15 @@ The terminal will give you a debug URL which you can use while you are interatin
 vcr deploy
 ```
 
-View the [deploying guide](https://developer.vonage.com/vcr/guides/deploying) to learn more about deploying on Vonage Cloud Runtime with powers Code Hub.
+View the [deploying guide](https://developer.vonage.com/vcr/guides/deploying) to learn more about deploying on Vonage Cloud Runtime which powers Code Hub.
 
 </details>
 
 ## Run Locally 
 
 <details>
+
+## Requirements
 
 - [Node.js](https://nodejs.org/)
 
