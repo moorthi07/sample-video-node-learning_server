@@ -445,11 +445,9 @@ router.post('/captions/start', async (req, res) => {
     const captionsResponse = await vonage.video.enableCaptions(sessionId, req.body.token, captionsOptions);
     const captionsId = captionsResponse.captionsId;
     res.send({ id: captionsId });
-  } catch (err) {
-    console.warn(err);
-    res.status(500);
-    res.send(`Error starting captions: ${err}`);
-    return;
+  } catch (error) {
+    console.error("Error starting captions: ",error);
+    res.status(500).send(`Error starting captions: ${error}`);
   }
 });
 
@@ -461,11 +459,9 @@ router.post('/captions/:captionsId/stop', async (req, res) => {
   try {
     await vonage.video.disableCaptions(captionsId);
     res.sendStatus(202)
-  } catch (err) {
-    console.warn(err);
-    res.status(500);
-    res.send(`Error stopping captions: ${err}`);
-    return;
+  } catch (error) {
+    console.error("Error stopping captions: ",error);
+    res.status(500).send(`Error stopping captions: ${error}`);
   }
 });
 
