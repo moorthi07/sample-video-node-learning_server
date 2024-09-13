@@ -17,8 +17,8 @@ html(lang='en')
   body
     p
       | This is a sample web service for use with Vonage Video Node SDK. See the Vonage 
-      a(href='https://github.com/opentok/learning-opentok-node')
-        | learning-opentok-node
+      a(href='https://github.com/Vonage-Community/sample-video-node-learning_server')
+        | sample-video-node-learning_server
       |  repo on GitHub.
     p
       | Resources are defined at the following endpoints:
@@ -29,6 +29,12 @@ html(lang='en')
         tr
           td GET /room/:name 
           td Return an Application ID, session ID, and token associated with a room name.
+        tr
+          td POST /captions/start
+          td Starts captions.
+        tr
+          td POST /captions/:captionsId/stop
+          td Stops captions.
         tr
           td POST /archive/start
           td Start an archive for the specified Vonage Video session.
