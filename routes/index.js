@@ -432,6 +432,39 @@ router.all('/admin/clear-conversations', async function (req, res) {
     });
 });
 
+/**
+ * POST /captions/start
+ */
+router.post('/captions/start', async (req, res) => {
+  const sessionId = req.body.sessionId;
+  const captionsOptions = {
+    languageCode: 'en-US',
+    partialCaptions: 'true',
+  };
+  try {
+    const captionsResponse = await vonage.video.enableCaptions(sessionId, req.body.token, captionsOptions);
+    const captionsId = captionsResponse.captionsId;
+    res.send({ id: captionsId });
+  } catch (error) {
+    console.error("Error starting captions: ",error);
+    res.status(500).send(`Error starting captions: ${error}`);
+  }
+});
+
+/**
+ * POST /captions/:captionsId/stop
+ */
+router.post('/captions/:captionsId/stop', async (req, res) => {
+  const captionsId = req.params.captionsId;
+  try {
+    await vonage.video.disableCaptions(captionsId);
+    res.sendStatus(202)
+  } catch (error) {
+    console.error("Error stopping captions: ",error);
+    res.status(500).send(`Error stopping captions: ${error}`);
+  }
+});
+
 router.get('/_/health', async function (req, res) {
   res.status(200).send({status: 'OK'});
 })

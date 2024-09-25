@@ -235,8 +235,49 @@ Examples:
 GET /archive // fetch up to 1000 archive objects
 GET /archive?sessionId=1_MX42...xQVJmfn4 // fetch archive(s) with session ID
 GET /archive?count=10  // fetch the first 10 archive objects
-GET /archive?offset=10  // fetch archives but first 10 archive objetcs
+GET /archive?offset=10  // fetch archives but first 10 archive objects
 GET /archive?count=10&offset=10 // fetch 10 archive objects starting from 11th
+```
+
+### Enable [Live Captions](https://developer.vonage.com/en/video/guides/live-caption)
+
+A `POST` request to the `/captions/start` route starts transcribing audio streams and generating real-time captions for a Vonage Video session.
+The session ID and token are passed in as JSON data in the body of the request
+
+```javascript
+router.post('/captions/start', async (req, res) => {
+  const sessionId = req.body.sessionId;
+  const captionsOptions = {
+    languageCode: 'en-US',
+    partialCaptions: 'true',
+  };
+  try {
+    const captionsResponse = await vonage.video.enableCaptions(sessionId, req.body.token, captionsOptions);
+    const captionsId = captionsResponse.captionsId;
+    res.send({ id: captionsId });
+  } catch (error) {
+    console.error("Error starting captions: ",error);
+    res.status(500).send(`Error starting captions: ${error}`);
+  }
+});
+```
+
+### Disable Live Captions
+
+A `POST` request to the `/captions/:captionsId/stop` route stops the live captioning.
+The captions ID is returned by the call to the `/captions/start` endpoint.
+
+```javascript
+router.post('/captions/:captionsId/stop', async (req, res) => {
+  const captionsId = req.params.captionsId;
+  try {
+    await vonage.video.disableCaptions(captionsId);
+    res.sendStatus(202)
+  } catch (error) {
+    console.error("Error stopping captions: ",error);
+    res.status(500).send(`Error stopping captions: ${error}`);
+  }
+});
 ```
 
 ## More information
