@@ -200,8 +200,17 @@ router.post('/archive/start', async function (req, res) {
   console.log('attempting to start archive');
   const json = req.body;
   const sessionId = json.sessionId;
+    const archiveOptions = {
+    name: findRoomFromSessionId(sessionId),
+  };
+  if (json.outputMode){
+    archiveOptions.outputMode = json.outputMode;
+  };
+  if (json.hasTranscription){
+    archiveOptions.hasTranscription = json.hasTranscription;
+  };
   try {
-    const archive = await vonage.video.startArchive(sessionId, { name: findRoomFromSessionId(sessionId) });
+    const archive = await vonage.video.startArchive(sessionId, archiveOptions);
     console.log("archive: ", archive);
     res.setHeader('Content-Type', 'application/json');
     res.send(archive);
