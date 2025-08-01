@@ -1,0 +1,28 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "hostRequirements": {
+    "cpus": 4
+  },
+  "waitFor": "onCreateCommand",
+  "updateContentCommand": "npm install",
+  "postCreateCommand": "",
+  "postAttachCommand": {
+    "server": "npm start",
+    "ports": "gh codespace ports visibility 3000:public -c $CODESPACE_NAME"
+  },
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "index.js"
+      ]
+    }
+  },
+  "portsAttributes": {
+    "3000":{
+      "label": "Vonage Node Learning Server",
+      "onAutoForward": "openPreview",
+      "protocol": "https"
+    }
+  },
+  "forwardPorts": [3000]
+}
