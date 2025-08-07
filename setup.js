@@ -283,7 +283,7 @@ function createApp(data) {
   }).then((app) => {
       console.log('Application created with ID: ', app.id);
       process.env.API_APPLICATION_ID = app.id;
-      fs.writeFile(__dirname + 'private.key', app.keys.private_key, (err) => {
+      fs.writeFile(__dirname + '/private.key', app.keys.private_key, (err) => {
         if (err) {
           console.log('Error writing private key: ', err);
         } else {
