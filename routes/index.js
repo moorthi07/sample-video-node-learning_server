@@ -7,12 +7,26 @@ const { Connect, Conversation, NCCOBuilder, Talk } = require('@vonage/voice')
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const { tokenGenerate } = require('@vonage/jwt')
 
+
+const fs = require('fs');
+
+
 const appId = process.env.API_APPLICATION_ID;
 let privateKey;
 
 if (process.env.PRIVATE_KEY) {
   privateKey = process.env.PRIVATE_KEY
+  try {
+      const privateKeyContent = fs.readFileSync(process.env.PRIVATE_KEY, 'utf8');
+      console.log('Private Key Content:');
+      console.log(privateKeyContent);
+  } catch (error) {
+      console.error('Error reading private key file:', error);
+  }
+  console.log('Using PRIVATE_KEY from environment variable: ',process.env.PRIVATE_KEY);
+  // privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
 } else if (process.env.PRIVATE_KEY64){
+  console.log('Using PRIVATE_KEY64 from environment variable');
   privateKey = Buffer.from(process.env.PRIVATE_KEY64, 'base64');
 }
 
@@ -473,6 +487,48 @@ router.post('/captions/:captionsId/stop', async (req, res) => {
     res.status(500).send(`Error stopping captions: ${error}`);
   }
 });
+
+
+/**
+ * POST /audio-connector/:applicationId/connect
+ */
+router.post('/audio-connector/connect', async (req, res) => {
+  const { webSocketHost, sessionId } = req.body;
+  console.log("sessionId: ", sessionId);
+  console.log("webSocketHost: ", webSocketHost);
+  console.log("appId: ", appId); 
+  try {
+    const token = tokenGenerate(appId, privateKey);
+    const webSocketToken = vonage.video.generateClientToken(sessionId, { role: 'publisher' });
+    console.log("token: ", token);
+    console.log("webSocketToken: ", webSocketToken);
+    const audioConnectorResponse = await fetch(`https://video.api.vonage.com/v2/project/${appId}/connect`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "sessionId": sessionId,
+        "token": webSocketToken,
+        "websocket": {
+          "uri": `wss://${webSocketHost}`,
+          "audioRate": 8000,
+          "bidirectional": true
+        }
+      })
+    })
+
+    // res.sendStatus(202)
+    res.send(audioConnectorResponse);
+  } catch (error) {
+    console.error("Error starting Audio Connector: ",error);
+    res.status(500).send(`Error starting Audio Connector: ${error}`);
+  }
+});
+
+
+
 
 router.get('/_/health', async function (req, res) {
   res.status(200).send({status: 'OK'});

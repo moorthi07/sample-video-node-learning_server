@@ -6,6 +6,9 @@ This simple server app shows you how to use [Vonage Video Node Server SDK](https
 
 ## Quick deploy
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Vonage-Community/sample-video-node-learning_server/tree/DEVX-10152-Codespaces-port)
+
+
 <details>
 
 ### Vonage Code Hub

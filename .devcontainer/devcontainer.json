@@ -5,11 +5,13 @@
   },
   "waitFor": "onCreateCommand",
   "updateContentCommand": "npm install",
-  "postCreateCommand": "",
-  "postAttachCommand": {
-    "server": "npm start",
-    "ports": "gh codespace ports visibility 3000:public -c $CODESPACE_NAME"
-  },
+  "postCreateCommand": "npm install",
+  // "postAttachCommand": [
+  //   ["node", "setup.js"],
+  //   ["gh", "codespace", "ports", "visibility", "3000:public", "-c", "$CODESPACE_NAME"],
+  //   ["npm", "start"]
+  // ],
+  "postAttachCommand": "gh codespace ports visibility 3000:public -c $CODESPACE_NAME && node setup.js && npm start",
   "customizations": {
     "codespaces": {
       "openFiles": [
@@ -21,7 +23,7 @@
     "3000":{
       "label": "Vonage Node Learning Server",
       "onAutoForward": "openPreview",
-      "protocol": "https"
+      "protocol": "http"
     }
   },
   "forwardPorts": [3000]
