@@ -29,5 +29,10 @@
       "protocol": "http"
     }
   },
-  "forwardPorts": [3000]
+  "forwardPorts": [
+    3000
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  }
 }
