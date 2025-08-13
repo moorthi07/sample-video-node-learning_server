@@ -114,68 +114,35 @@ function buyPhoneNumber(data){
   const countryCode = data.toString().replace(/\n/g, '');
   process.env.COUNTRY_CODE = data.toString().replace(/\n/g, '').toUpperCase();
   //Search for a number
-    console.log('Searching for a number in country: ', countryCode);
-    vonage.numbers.getAvailableNumbers({
-        country: process.env.COUNTRY_CODE,
-        features: ['VOICE', 'SMS'],
+  console.log('Searching for a number in country: ', countryCode);
+  vonage.numbers.getAvailableNumbers({
+      country: process.env.COUNTRY_CODE,
+      features: ['VOICE', 'SMS'],
+  })
+  .then((results) => {
+    const numbers = results.numbers;
+    console.log('Found numbers: ', numbers);
+    // Purchase a number
+    if (numbers.length === 0) {
+        console.log('No numbers found in this country. Please try another country code.');
+        return;
+    }
+    console.log('Found a number: ', numbers[0].msisdn);
+    vonage.numbers.buyNumber({
+        country: numbers[0].country,
+        msisdn: numbers[0].msisdn,
     })
-    .then((results) => {
-      const numbers = results.numbers;
-      console.log('Found numbers: ', numbers);
-      // Purchase a number
-      if (numbers.length === 0) {
-          console.log('No numbers found in this country. Please try another country code.');
-          return;
-      }
-      console.log('Found a number: ', numbers[0].msisdn);
-      vonage.numbers.buyNumber({
-          country: numbers[0].country,
-          msisdn: numbers[0].msisdn,
-      })
-      .then((result) => {
-          console.log('Bought the number!');
-          updatePhoneNumber(numbers[0]);
-      })
-      .catch((error) => {
-          console.error("Error buying number:", error);
-      });
-        // vonage.number.buy(numbers[0].country, numbers[0].msisdn, function(err, res) {
-      //     if(err) {
-      //         console.error(err);
-      //     }
-      //     else {
-      //         console.log('Bought the number!');
-      //         updatePhoneNumber(numbers[0]);
-      //     }
-      // });
-      
-
-      // for (const number of numbers) {
-      // console.log(number);
-      // }
+    .then((result) => {
+        console.log('Bought the number!');
+        updatePhoneNumber(numbers[0]);
     })
     .catch((error) => {
-        console.error(error)
+        console.error("Error buying number:", error);
     });
-//   nexmo.number.search(countryCode, {features: 'VOICE,SMS'}, function(err, res) {
-//     if(err) {
-//       console.error(err);
-//     }
-//     else {
-//       const numbers = res.numbers;
-//       console.log('Found a number: ', numbers[0].msisdn);
-//       // Purchase a number
-//       nexmo.number.buy(numbers[0].country, numbers[0].msisdn, function(err, res) {
-//         if(err) {
-//           console.error(err);
-//         }
-//         else {
-//           console.log('Bought the number!');
-//           updatePhoneNumber(numbers[0]);
-//         }
-//       });
-//     }
-//   });
+  })
+  .catch((error) => {
+      console.error(error)
+  });
 }
 
 function sleep(ms) {
@@ -202,17 +169,6 @@ async function updatePhoneNumber(number) {
     process.env.VONAGE_NUMBER = number.msisdn;
     writeEnv();
   }
-
-  // vonage.number.update(number.country, number.msisdn, options, function(err, res) {
-  //   if(err) {
-  //     console.error(err);
-  //   }
-  //   else {
-  //     console.log('Added number to application!');
-  //     process.env.VONAGE_NUMBER = number.msisdn;
-  //     writeEnv();
-  //   }
-  // });    
 }
 
 function createApp(data) {
@@ -260,26 +216,6 @@ function createApp(data) {
               }
           }
       }
-//   }, (error, result) => {
-//       if(error) {
-//         console.error('Error creating Application: ', error);
-//         process.exit();
-//       }
-//       else {
-//         console.log('Application created with ID: ', result.id);
-//         process.env.VONAGE_APPLICATION_ID = result.id;
-//         fs.writeFile(__dirname + '/private.key', result.keys.private_key, (err) => {
-//           if (err) {
-//             console.log('Error writing private key: ', err);
-//           } else {
-//             console.log('Private key saved to /private.key');
-//             //Search and Buy phone number
-//             process.env.VONAGE_APPLICATION_NAME = data.toString().replace(/\n/g, '');
-//             step = 'SET_COUNTRY_CODE';
-//             console.log('Set the country code for your number (ex. US or GB):');      
-//           }
-//         });
-//       }
   }).then((app) => {
       console.log('Application created with ID: ', app.id);
       process.env.API_APPLICATION_ID = app.id;
