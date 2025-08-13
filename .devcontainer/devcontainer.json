@@ -2,18 +2,12 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
-  // "image": "mcr.microsoft.com/devcontainers/universal:2",
   "hostRequirements": {
-    "cpus": 4
+    "cpus": 2
   },
   "waitFor": "onCreateCommand",
   "updateContentCommand": "npm install",
   "postCreateCommand": "npm install",
-  // "postAttachCommand": [
-  //   ["node", "setup.js"],
-  //   ["gh", "codespace", "ports", "visibility", "3000:public", "-c", "$CODESPACE_NAME"],
-  //   ["npm", "start"]
-  // ],
   "postAttachCommand": "gh codespace ports visibility 3000:public -c $CODESPACE_NAME && node setup.js && npm start",
   "customizations": {
     "codespaces": {

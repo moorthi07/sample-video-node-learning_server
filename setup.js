@@ -288,10 +288,23 @@ function createApp(data) {
           console.log('Error writing private key: ', err);
         } else {
           console.log('Private key saved to private.key');
-          //Search and Buy phone number
-          process.env.VONAGE_APPLICATION_NAME = data.toString().replace(/\n/g, '');
-          step = 'BUY_NUMBER';
-          console.log('Want to Buy a number? (Y/N):');
+          try {
+            // convert private.key to base64
+            console.log('Converting private key to base64...');
+            const privateKey = fs.readFileSync(__dirname + '/private.key');
+            const base64PrivateKey = privateKey.toString('base64');
+            process.env.PRIVATE_KEY64 = base64PrivateKey;
+
+            //Search and Buy phone number
+            process.env.VONAGE_APPLICATION_NAME = data.toString().replace(/\n/g, '');
+            step = 'BUY_NUMBER';
+            console.log('Want to Buy a number? (Y/N):');
+
+          } catch (error) {
+            console.error('An error occurred:', error);
+          }
+
+
         }
       });
   }).catch((error) => {
@@ -310,7 +323,7 @@ VONAGE_APPLICATION_NAME="${process.env.VONAGE_APPLICATION_NAME}"
 API_APPLICATION_ID="${process.env.API_APPLICATION_ID}"
 COUNTRY_CODE="${process.env.COUNTRY_CODE}"
 VONAGE_NUMBER="${process.env.VONAGE_NUMBER}"
-PRIVATE_KEY="private.key"`;
+PRIVATE_KEY64="${process.env.PRIVATE_KEY64}"`;
   
   fs.writeFile(__dirname + '/.env', contents, (err) => {
     if (err) {
