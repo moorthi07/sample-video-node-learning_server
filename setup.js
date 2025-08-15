@@ -145,24 +145,16 @@ function buyPhoneNumber(data){
   });
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 async function updatePhoneNumber(number) {
   console.log('Adding phone number to application...');
   const options = {
+    country: process.env.COUNTRY_CODE,
     msisdn: number.msisdn,
-    voiceCallbackType: 'app',
-    voiceCallbackValue: process.env.API_APPLICATION_ID,
-    messagesCallbackType: 'app',
-    messagesCallbackValue: process.env.API_APPLICATION_ID,
-    voiceStatusCallback: `https://${process.env.CODESPACE_NAME}.github.dev/webhooks/event`,
-    moHttpUrl: `https://${process.env.CODESPACE_NAME}.github.dev/webhooks/inbound`
+    app_id: process.env.API_APPLICATION_ID,
   };
-  await sleep(10000);
 
   const resp = await vonage.numbers.updateNumber(options);
-  if (resp.errorCode) {
+  if (resp.errorCode !== '200') {
     console.error(`Error: ${resp.errorCodeLabel}`);
   } else {
     console.log('Added number to application!');
