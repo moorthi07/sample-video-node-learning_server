@@ -6,7 +6,7 @@ const { Vonage } = require('@vonage/server-sdk');
 
 let vonage;
 
-console.log('setup.js running... : ',process.env);
+console.log('setup.js running...');
 if (process.env.VONAGE_API_KEY && process.env.VONAGE_API_SECRET) {
   // If the environment variables are already set, use them
   console.log('Environment variables already set. Skipping setup.');
