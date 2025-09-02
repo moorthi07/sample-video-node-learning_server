@@ -506,7 +506,8 @@ router.post('/audio-connector/connect', async (req, res) => {
         }
       })
     })
-    res.send(audioConnectorResponse);
+    const audioConnectorResponseJson = await audioConnectorResponse.json();
+    res.send(audioConnectorResponseJson);
   } catch (error) {
     console.error("Error starting Audio Connector: ",error);
     res.status(500).send(`Error starting Audio Connector: ${error}`);
