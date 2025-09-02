@@ -481,9 +481,8 @@ router.post('/captions/:captionsId/stop', async (req, res) => {
   }
 });
 
-
 /**
- * POST /audio-connector/:applicationId/connect
+ * POST /audio-connector/connect
  */
 router.post('/audio-connector/connect', async (req, res) => {
   const { webSocketHost, sessionId } = req.body;
@@ -514,8 +513,20 @@ router.post('/audio-connector/connect', async (req, res) => {
   }
 });
 
-
-
+/**
+ * POST /audio-connector/disconnect
+ */
+router.post('/audio-connector/disconnect', async (req, res) => {
+  const { sessionId, connectionId } = req.body;
+  try {
+    await vonage.video.disconnectClient(sessionId, connectionId);
+    console.log("Successfully disconnected Audio Connector");
+    res.sendStatus(204)
+  } catch (error) {
+    console.error("Error starting Audio Connector: ",error);
+    res.status(500).send(`Error stopping Audio Connector: ${error}`);
+  }
+});
 
 router.get('/_/health', async function (req, res) {
   res.status(200).send({status: 'OK'});
