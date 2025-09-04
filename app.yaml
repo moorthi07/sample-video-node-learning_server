@@ -1,0 +1,44 @@
+runtime: nodejs  # Specifies the Node.js runtime. App Engine will use the latest supported Node.js version.
+                 # You can also specify a major version like nodejs18, nodejs20, etc.
+
+env: standard    # This explicitly states you're using the Standard environment.
+
+# Optional: Environment variables for your application.
+# These are suitable for non-sensitive configuration that changes between environments (e.g., development, production).
+# For sensitive data (passwords, API keys), use Secret Manager as discussed previously.
+env_variables:
+  NODE_ENV: production
+  MY_APP_SETTING: "some_value"
+  # Replace with your actual environment variables
+
+# Optional: Handlers define how URLs are routed to your application or static files.
+# This is a common setup for a single-page application (SPA) with an API.
+handlers:
+# Routes requests to /api/.* to your Node.js application
+- url: /api/.*
+  script: auto # For Node.js, 'auto' tells App Engine to use your app's entry point
+
+# Routes all other requests (non-/api/) to static files, then to your app if no static file matches
+- url: /(.*)
+  static_files: build/\1 # Adjust 'build' to wherever your compiled static assets are (e.g., 'public', 'dist')
+  upload: build/.*       # Matches all files in the static directory
+  # If you want to serve index.html for all unmatched paths (common for SPAs):
+  # Use your app's main script as a fallback for routes not covered by static files.
+  # This makes sure React/Vue/Angular routing works.
+  # If not using an SPA, you might remove 'static_files' and let 'script: auto' handle everything.
+  # Or you can define specific static file handlers for CSS, JS, images, etc.
+  # For a simple API, you might only need the first handler.
+
+# Optional: Scaling settings (for Standard environment)
+# This controls how instances are created and scaled.
+automatic_scaling:
+  min_instances: 0 # Scale down to 0 instances to save costs when idle
+  max_instances: 5 # Maximum instances to scale up to
+  min_idle_instances: 0 # Minimum instances to keep running even if idle
+  max_idle_instances: automatic # Or a specific number
+  target_cpu_utilization: 0.6 # Target CPU usage before scaling up
+
+# Optional: If you have a custom start script in package.json (e.g., "start": "node server.js"),
+# App Engine will use it automatically. If not, it defaults to `node server.js`.
+# If your main app file is not server.js or app.js, you might define it here:
+# entrypoint: node your_main_app_file.js

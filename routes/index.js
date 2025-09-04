@@ -13,15 +13,21 @@ const appId = process.env.API_APPLICATION_ID;
 let privateKey;
 
 if (process.env.PRIVATE_KEY) {
+  console.log("PRIVATE_KEY env var detected", process.env.PRIVATE_KEY);
   try {
       privateKey = fs.readFileSync(process.env.PRIVATE_KEY, 'utf8');
-  } catch (error) {
+      console.log("Using PRIVATE_KEY from file", process.env.PRIVATE_KEY);
+      console.log(privateKey);
+    } catch (error) {
       // PRIVATE_KEY entered as a single line string
       privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
+      console.log("Using PRIVATE_KEY from env", privateKey);
   }
 } else if (process.env.PRIVATE_KEY64){
   privateKey = Buffer.from(process.env.PRIVATE_KEY64, 'base64');
 }
+
+console.log(privateKey);
 
 if (!appId || !privateKey) {
   console.error('=========================================================================================================');
